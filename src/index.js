@@ -30,15 +30,14 @@ app.post('/users', (request, response) => {
   if(verifyIfUserAlreadyExists)
     return response.status(400).json({error: "User already exists!"});
   else {
-    users.push(
-      {
+    const newUser = {
         id: uuidv4(),
         name,
         username,
         todos: []
-      }
-    );
-    return response.status(201).send("User created!");
+    };
+    users.push(newUser);
+    return response.status(201).send(newUser);
   }
 });
 
