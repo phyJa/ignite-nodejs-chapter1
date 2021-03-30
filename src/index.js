@@ -65,7 +65,7 @@ app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
   const { id }  = request.params; // Id of the todo
   const { user } = request;
   let todoIndex = -1;
-  user.todos.map(
+  user.todos.forEach(
     (aTodo, index) => {
       if(aTodo.id === id) {
         aTodo.title = title;
@@ -81,7 +81,15 @@ app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
 });
 
 app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
-  // Complete aqui
+  const { id } = request.params;
+  const { user } = request;
+  const todoToUpdate = user.todos.find(
+    (aTodo) => aTodo.id === id
+  );
+  if(!todoToUpdate)
+    return response.status(404).json({error: "Task not found..."});
+  todoToUpdate.done = true;
+  return response.status(200).json(todoToUpdate);
 });
 
 app.delete('/todos/:id', checksExistsUserAccount, (request, response) => {
