@@ -37,7 +37,7 @@ app.post('/users', (request, response) => {
         todos: []
     };
     users.push(newUser);
-    return response.status(201).send(newUser);
+    return response.status(201).json(newUser);
   }
 });
 
@@ -47,11 +47,37 @@ app.get('/todos', checksExistsUserAccount, (request, response) => {
 });
 
 app.post('/todos', checksExistsUserAccount, (request, response) => {
-  // Complete aqui
+  const { title, deadline } = request.body;
+  const { user } = request;
+  const newTodo = {
+    id: uuidv4(),
+    title,
+    done: false,
+    deadline: new Date(deadline),
+    created_at: new Date()
+  };
+  user.todos.push(newTodo);
+  return response.status(201).json(newTodo);
 });
 
 app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
-  // Complete aqui
+  const { title, deadline } = request.body;
+  const { id }  = request.params; // Id of the todo
+  const { user } = request;
+  let todoIndex = -1;
+  user.todos.map(
+    (aTodo, index) => {
+      if(aTodo.id === id) {
+        aTodo.title = title;
+        aTodo.deadline = deadline;
+        todoIndex = index;
+      }
+    }
+  );
+  if(todoIndex < 0)
+    return response.status(404).json({error: "Task not found..."});
+  else
+    return response.status(200).json(user.todos[todoIndex]);
 });
 
 app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
