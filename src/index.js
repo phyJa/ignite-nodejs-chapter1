@@ -16,7 +16,7 @@ function checksExistsUserAccount(request, response, next) {
     (aUser) => aUser.username === username
   );
   if(!chosenUser)
-    return response.status(400).json({error: "User not found!"});
+    return response.status(404).json({error: "User not found! Please, verify if they were created or if you typed their username correctly in your search"});
   
   request.user = chosenUser;
   return next();
@@ -75,7 +75,7 @@ app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
     }
   );
   if(todoIndex < 0)
-    return response.status(404).json({error: "Task not found..."});
+    return response.status(404).json({error: "Task not found... Please, verify if it was created or if you typed it correctly in your search"});
   else
     return response.status(200).json(user.todos[todoIndex]);
 });
@@ -87,13 +87,25 @@ app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
     (aTodo) => aTodo.id === id
   );
   if(!todoToUpdate)
-    return response.status(404).json({error: "Task not found..."});
+    return response.status(404).json({error: "Task not found... Please, verify if it was created or if you typed it correctly in your search"});
   todoToUpdate.done = true;
   return response.status(200).json(todoToUpdate);
 });
 
 app.delete('/todos/:id', checksExistsUserAccount, (request, response) => {
-  // Complete aqui
+  const { user } = request;
+  const { id } = request.params;
+  const todoToBeDeleted = user.todos.find(
+    (aTodo) => aTodo.id === id
+  );
+  const newTodos = user.todos.filter(
+    (aTodo) => aTodo.id !== id
+  );
+  user.todos = newTodos;
+  if(todoToBeDeleted)
+    return response.status(204).json();
+  else
+    return response.status(404).json({error: "Task not found... Please, verify if it was created or if you typed it correctly in your deletion request"})
 });
 
 module.exports = app;
